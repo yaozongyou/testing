@@ -1,6 +1,6 @@
 #![feature(panic_info_message)]
 
-use std::sync::{Arc, Mutex, OnceLock};
+use std::sync::{Mutex, OnceLock};
 use testing::testing;
 use testing::TestDescAndFn;
 
@@ -34,10 +34,7 @@ fn main() {
 
         println!("begin to run test: {} {}", name, comment);
 
-        let panic_message = Arc::new(Mutex::new(String::new()));
-
         std::panic::set_hook(Box::new({
-            let panic_message = panic_message.clone();
             move |panic_info| {
                 let (panic_file, panic_line) = if let Some(location) = panic_info.location() {
                     (location.file(), location.line())
@@ -47,10 +44,6 @@ fn main() {
 
                 if let Some(message) = panic_info.message() {
                     println!(
-                        "thread 'main' panicked at '{:?}', {}:{}",
-                        message, panic_file, panic_line
-                    );
-                    *panic_message.lock().unwrap() = format!(
                         "thread 'main' panicked at '{:?}', {}:{}",
                         message, panic_file, panic_line
                     );
